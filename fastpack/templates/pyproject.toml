@@ -1,11 +1,11 @@
 [project]
-name = "fastpack"
-version = "0.1.1"
-description = "Module to help initialize Python projects"
+name = "PACKAGE_NAME"
+version = "0.1.0"
+description = "PACKAGE_DESCRIPTION"
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
-authors = [{ name = "Brandon Sexton", email = "brandon.sexton.1@outlook.com" }]
+authors = [{ name = "AUTHOR_NAME", email = "AUTHOR@EMAIL" }]
 dependencies = []
 
 [project.optional-dependencies]
@@ -16,19 +16,19 @@ dev = [
   "mypy",
   "flake8",
   "flake8-pytest-style",
-  "fastpack[test]",
+  "PACKAGE_NAME[test]",
 ]
 test = ["pytest", "pytest-cov", "mockito"]
 build = ["build"]
 docs = ["sphinx", "sphinx-autodoc-typehints", "sphinx-markdown-builder"]
 deploy = ["twine"]
 
-[project.scripts]
-fastpack = "fastpack.cli:main"
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.force-include]
+"docs" = "PACKAGE_NAME/docs"
 
 [tool.black]
 line-length = 120
@@ -54,7 +54,7 @@ skip = ["__init__.py"]
 [tool.pytest.ini_options]
 pythonpath = ["."]
 addopts = [
-  "--cov=fastpack",
+  "--cov=PACKAGE_NAME",
   "--cov-report=term-missing",
   "--cov-report=xml",
   "--cov-branch",
