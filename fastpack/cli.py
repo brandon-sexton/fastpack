@@ -4,13 +4,17 @@ import subprocess
 import sys
 from pathlib import Path
 
+# S603 `subprocess` call: check for execution of untrusted input
+# ruff: noqa: S603
+# S607 Starting a process with a partial executable path
+# ruff: noqa: S607
+
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 PYPROJECT_PATH = TEMPLATE_DIR / "pyproject.toml"
 
 
 def main():
-
-    with open(PYPROJECT_PATH) as f:
+    with Path.open(PYPROJECT_PATH) as f:
         pyproject = f.read()
 
     try:
@@ -43,6 +47,7 @@ def main():
     package_modules_dir = package_root_dir / package_name.replace("-", "_")
     package_docs_dir = package_root_dir / "docs"
     package_tests_dir = package_root_dir / "tests"
+    package_scripts_dir = package_root_dir / "scripts"
 
     # Define package file paths
     package_init = package_modules_dir / "__init__.py"
@@ -56,13 +61,13 @@ def main():
     pyproject = pyproject.replace("PACKAGE_DESCRIPTION", package_description)
 
     # Get the package author
-    user = subprocess.check_output(["git", "config", "user.name"]).strip().decode("utf-8")
+    user = subprocess.check_output(["git", "config", "user.name"]).strip().decode("utf-8")  # noqa: S607
     if not user:
         user = input("Enter your name: ")
     pyproject = pyproject.replace("AUTHOR_NAME", user)
 
     # Get the package author email
-    email = subprocess.check_output(["git", "config", "user.email"]).strip().decode("utf-8")
+    email = subprocess.check_output(["git", "config", "user.email"]).strip().decode("utf-8")  # nosec
     if not email:
         email = input("Enter your email: ")
     pyproject = pyproject.replace("AUTHOR@EMAIL", email)
@@ -72,12 +77,13 @@ def main():
     package_modules_dir.mkdir()
     package_docs_dir.mkdir()
     package_tests_dir.mkdir()
+    # package_scripts_dir.mkdir()
 
     # Make blank init file
     package_init.touch()
 
     # Write pyproject.toml
-    with open(pyproject_path, "w") as f:
+    with Path.open(pyproject_path, "w") as f:
         f.write(pyproject)
 
     # Copy template files
@@ -85,6 +91,7 @@ def main():
     shutil.copy(TEMPLATE_DIR / ".pre-commit-config.yaml", precommit_path)
     shutil.copy(TEMPLATE_DIR / "README.md", readme_path)
     shutil.copy(TEMPLATE_DIR / ".gitignore", gitignore_path)
+    shutil.copytree(TEMPLATE_DIR / "scripts", package_scripts_dir)
 
     # change to the package root directory
     os.chdir(package_root_dir)
@@ -105,3 +112,7 @@ def main():
     # Make initial commit
     subprocess.run(["git", "add", "."], check=True)
     subprocess.run(["git", "commit", "-m", "Initial commit"], check=True)
+
+
+if __name__ == "__main__":
+    main()

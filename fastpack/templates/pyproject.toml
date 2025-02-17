@@ -1,7 +1,7 @@
 [project]
 name = "PACKAGE_NAME"
-version = "0.1.0"
-description = "PACKAGE_DESCRIPTION"
+version = "0.1.1"
+description = "Module to help initialize Python projects"
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
@@ -10,18 +10,26 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = [
-  "black",
-  "pre-commit",
-  "isort",
-  "mypy",
+  "commitizen",
   "flake8",
   "flake8-pytest-style",
-  "PACKAGE_NAME[test]",
+  "pre-commit",
+  "ruff",
+  "fastpack[test]",
 ]
-test = ["pytest", "pytest-cov", "mockito"]
+test = [
+  "pytest",
+  "pytest-mock",
+  "pytest-asyncio",
+  "pytest-cov",
+  "mockito"
+]
 build = ["build"]
 docs = ["sphinx", "sphinx-autodoc-typehints", "sphinx-markdown-builder"]
 deploy = ["twine"]
+
+[project.scripts]
+fastpack = "fastpack.cli:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -30,36 +38,87 @@ build-backend = "hatchling.build"
 [tool.hatch.build.force-include]
 "docs" = "PACKAGE_NAME/docs"
 
-[tool.black]
-line-length = 120
-force-exclude = '''
-^/(
-  (
-      \.eggs
-    | \.git
-    | \.pytest_cache
-    | \.tox
-    | dist
-    | data
-  )/
-)
-'''
+[tool.hatch.version]
+path = "fastpack/__init__.py"
 
-[tool.isort]
-profile = "black"
-filter_files = true
-line_length = 120
-skip = ["__init__.py"]
-
-[tool.pytest.ini_options]
-pythonpath = ["."]
-addopts = [
-  "--cov=PACKAGE_NAME",
-  "--cov-report=term-missing",
-  "--cov-report=xml",
-  "--cov-branch",
-  "--import-mode=importlib",
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
 ]
 
-[tool.coverage.run]
-omit = ["tests/*", "__init__.py"]
+[tool.hatch.build.targets.wheel]
+packages = ["fastpack"]
+
+[tool.pytest.ini_options]
+# Allows tests in unit and integration directories with the same name to be discovered.
+addopts = "--import-mode=importlib"
+
+[tool.coverage.paths]
+source = ["src", "*/site-packages"]
+
+[tool.ruff]
+# See https://docs.astral.sh/ruff/rules/
+exclude = ["^tests/", "__init__.py"]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "D",  # pydocstyle
+    "E",  # Error
+    "F",  # pyflakes
+    "I",  # isort
+    "N",  # pep8-naming
+    "PGH",  # pygrep-hooks
+    "PTH", # flake8-use-pathlib
+    "Q",  # flake8-quotes
+    "S",  # bandit
+    "SIM",  # flake8-simplify
+    "TRY",  # tryceratops
+    "UP",  # pyupgrade
+    "W",  # Warning
+    "YTT", # flake8-2020
+]
+ignore = [
+    "FIX001",   # line-contains-fixme
+    "FIX002",   # line-contains-todo
+    "G004",     # logging-f-string
+    "PLR0913",  # too-many-arguments
+    "PLR0914",  # too-many-locals
+    "PLR0917",  # too-many-positional-arguments
+    "B905",  # zip strict=True; remove once python <3.10 support is dropped.
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D107",
+    "D200",
+    "D401",
+    "E402",
+    "E501",
+    "F401",
+    "TRY003",
+    "S101",
+]
+# 3. Avoid trying to fix flake8-bugbear (`B`) violations.
+# unfixable = ["B"]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# 4. Ignore `E402` (import violations) in all `__init__.py` files, and in selected subdirectories.
+#[tool.ruff.lint.per-file-ignores]
+#"__init__.py" = ["E402"]
+#"**/{tests,docs,tools}/*" = ["E402"]
+
+[tool.ruff.lint.mccabe]
+# Flag errors (`C901`) whenever the complexity level exceeds 15.
+max-complexity = 15
