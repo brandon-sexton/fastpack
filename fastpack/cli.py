@@ -77,7 +77,7 @@ def main():
     package_modules_dir.mkdir()
     package_docs_dir.mkdir()
     package_tests_dir.mkdir()
-    # package_scripts_dir.mkdir()
+    package_scripts_dir.mkdir()
 
     # Make blank init file
     package_init.touch()
@@ -91,7 +91,7 @@ def main():
     shutil.copy(TEMPLATE_DIR / ".pre-commit-config.yaml", precommit_path)
     shutil.copy(TEMPLATE_DIR / "README.md", readme_path)
     shutil.copy(TEMPLATE_DIR / ".gitignore", gitignore_path)
-    shutil.copytree(TEMPLATE_DIR / "scripts", package_scripts_dir)
+    shutil.copytree(TEMPLATE_DIR / "scripts", package_scripts_dir, dirs_exist_ok=True)
 
     # change to the package root directory
     os.chdir(package_root_dir)
