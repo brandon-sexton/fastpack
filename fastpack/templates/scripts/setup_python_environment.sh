@@ -143,8 +143,13 @@ do_pip_install() {
     dependencies=("$@")
     for dependency in "$@"
     do
-        echo "${GREEN}Installing ${dependency} dependencies...${NC}"
-        pip install -e .[${dependency}]
+        if [ "$dependency" == "dev" ]; then
+            echo "${GREEN}Installing ${dependency} dependencies in${NC} ${ORANGE}editable mode${NC}"
+            pip install -e .[${dependency}]
+        else
+            echo "${GREEN}Installing ${dependency} dependencies...${NC}"
+            pip install .[${dependency}]
+        fi
     done
 }
 
