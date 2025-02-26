@@ -141,9 +141,18 @@ install_packages() {
 
 do_pip_install() {
     dependencies=("$@")
-    for dependency in "$@"
-    do
+    local dev_mode=false
+
+    # Check if 'dev' is in the dependencies array
+    for dependency in "${dependencies[@]}"; do
         if [ "$dependency" == "dev" ]; then
+            dev_mode=true
+            break
+        fi
+    done
+
+    for dependency in "${dependencies[@]}"; do
+        if $dev_mode; then
             echo "${GREEN}Installing ${dependency} dependencies in${NC} ${ORANGE}editable mode${NC}"
             pip install -e .[${dependency}]
         else
@@ -151,6 +160,11 @@ do_pip_install() {
             pip install .[${dependency}]
         fi
     done
+
+    if $dev_mode; then
+        # Install pre-commit hooks only once after all dependencies are installed
+        pre-commit install
+    fi
 }
 
 # Compare 2 versions in the format 1.23.4 and return 1 if the supplied 2nd version
